@@ -12,7 +12,10 @@ import br.com.banco.entidades.Transferencia;
 
 public interface TransferenciaRepositorio extends JpaRepository<Transferencia, Long>{
 	
-    @Query(value = "SELECT c FROM Transferencia c WHERE c.data_trasnferencia BETWEEN :min AND :max ORDER BY c.data_transferencia DESC")
+	@Query(value = "SELECT c FROM Transferencia c")
+	Page<Transferencia> buscarTodasTransferencia(Pageable pageable);
+	
+    @Query(value = "SELECT c FROM Transferencia c WHERE c.data_transferencia BETWEEN :min AND :max ORDER BY c.data_transferencia DESC")
     Page<Transferencia> buscarTransferenciaPorData(Instant min, Instant max, Pageable pageable);
     
     @Query("SELECT t FROM Transferencia t WHERE t.conta.id_conta IN (SELECT c.id_conta FROM Conta c WHERE c.nome_responsavel = :nome)")

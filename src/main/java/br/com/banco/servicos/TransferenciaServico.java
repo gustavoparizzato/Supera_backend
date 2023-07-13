@@ -21,8 +21,14 @@ public class TransferenciaServico {
 	@Autowired
 	private TransferenciaRepositorio transferenciaRepositorio;
 	
+	//bsucar todas transferencias
+	@Transactional(readOnly = true)
+	public Page<TransferenciaDTO> buscarTodasTransferencias(Pageable pageable){
+		Page<Transferencia> resultado = transferenciaRepositorio.buscarTodasTransferencia(pageable);
+		return resultado.map(TransferenciaDTO::new);
+	}
 	
-	//buscar transferencias por data ou todas em caso de não preencher nenhuma data (período de 1 ano)
+	//buscar transferencias por data
 	@Transactional(readOnly = true)
 	public Page<TransferenciaDTO> buscarTransferenciaPorData (String minData, String maxData, Pageable pageable){
 		
