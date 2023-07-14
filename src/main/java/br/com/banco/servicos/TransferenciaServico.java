@@ -20,29 +20,29 @@ public class TransferenciaServico {
 
 	@Autowired
 	private TransferenciaRepositorio transferenciaRepositorio;
-	
-	//bsucar todas transferencias
+
 	@Transactional(readOnly = true)
-	public Page<TransferenciaDTO> buscarTodasTransferencias(Pageable pageable){
+	public Page<TransferenciaDTO> buscarTodasTransferencias(Pageable pageable) {
 		Page<Transferencia> resultado = transferenciaRepositorio.buscarTodasTransferencia(pageable);
 		return resultado.map(TransferenciaDTO::new);
 	}
-	
-	//buscar transferencias por data
-	@Transactional(readOnly = true)
-	public Page<TransferenciaDTO> buscarTransferenciaPorData (String minData, String maxData, Pageable pageable){
-		
-	    LocalDate hoje = LocalDate.now();
-	    Instant instantMin = minData.isEmpty() ? hoje.minusDays(365).atStartOfDay().toInstant(ZoneOffset.UTC) : LocalDate.parse(minData).atStartOfDay().toInstant(ZoneOffset.UTC);
-	    Instant instantMax = maxData.isEmpty() ? hoje.atTime(LocalTime.MAX).atZone(ZoneOffset.UTC).toInstant() : LocalDate.parse(maxData).atTime(LocalTime.MAX).atZone(ZoneOffset.UTC).toInstant();
 
-	    Page<Transferencia> resultado = transferenciaRepositorio.buscarTransferenciaPorData(instantMin, instantMax, pageable);
-	    return resultado.map(TransferenciaDTO::new);
+	@Transactional(readOnly = true)
+	public Page<TransferenciaDTO> buscarTransferenciaPorData(String minData, String maxData, Pageable pageable) {
+
+		LocalDate hoje = LocalDate.now();
+		Instant instantMin = minData.isEmpty() ? hoje.minusDays(2000).atStartOfDay().toInstant(ZoneOffset.UTC)
+				: LocalDate.parse(minData).atStartOfDay().toInstant(ZoneOffset.UTC);
+		Instant instantMax = maxData.isEmpty() ? hoje.atTime(LocalTime.MAX).atZone(ZoneOffset.UTC).toInstant()
+				: LocalDate.parse(maxData).atTime(LocalTime.MAX).atZone(ZoneOffset.UTC).toInstant();
+
+		Page<Transferencia> resultado = transferenciaRepositorio.buscarTransferenciaPorData(instantMin, instantMax, pageable);
+		return resultado.map(TransferenciaDTO::new);
 	}
-	
-	//buscar transferencias por conta
-    public Page<TransferenciaDTO> buscarTransferenciaPorConta(String nome, Pageable pageable) {
-        Page<Transferencia> transferencias = transferenciaRepositorio.buscarTransferenciaPorConta(nome, pageable);
-        return transferencias.map(TransferenciaDTO::new);
-    }
+
+	@Transactional(readOnly = true)
+	public Page<TransferenciaDTO> buscarTransferenciaPorConta(String nome, Pageable pageable) {
+		Page<Transferencia> transferencias = transferenciaRepositorio.buscarTransferenciaPorOperador(nome, pageable);
+		return transferencias.map(TransferenciaDTO::new);
+	}
 }
