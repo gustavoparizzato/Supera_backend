@@ -18,23 +18,23 @@ public class TransferenciaControle {
 
 	@Autowired
 	private TransferenciaServico transferenciaServico;
-	
+
 	@GetMapping
 	public ResponseEntity<Page<TransferenciaDTO>> buscarTransferencias(
-	        @RequestParam(value = "minData", defaultValue = "") String minData,
-	        @RequestParam(value = "maxData", defaultValue = "") String maxData,
-	        @RequestParam(value = "nomeConta", defaultValue = "") String nomeConta,
-	        Pageable pageable){
-		
-	    Page<TransferenciaDTO> resultado;
+			@RequestParam(value = "minData", defaultValue = "") String minData,
+			@RequestParam(value = "maxData", defaultValue = "") String maxData,
+			@RequestParam(value = "nomeConta", defaultValue = "") String nomeConta, Pageable pageable) {
 
-	    if (!minData.isEmpty() && !maxData.isEmpty()) {
-	        resultado = transferenciaServico.buscarTransferenciaPorData(minData, maxData, pageable);
-	    } else if (!nomeConta.isEmpty()) {
-	        resultado = transferenciaServico.buscarTransferenciaPorConta(nomeConta, pageable);
-	    } else {
-	        resultado = transferenciaServico.buscarTodasTransferencias(pageable);
-	    }
-	    return ResponseEntity.ok().body(resultado);
+		Page<TransferenciaDTO> resultado;
+
+		if (!minData.isEmpty() && !maxData.isEmpty()) {
+			resultado = transferenciaServico.buscarTransferenciaPorData(minData, maxData, pageable);
+		} else if (!nomeConta.isEmpty()) {
+			resultado = transferenciaServico.buscarTransferenciaPorConta(nomeConta, pageable);
+		} else {
+			resultado = transferenciaServico.buscarTodasTransferencias(pageable);
+		}
+
+		return ResponseEntity.ok().body(resultado);
 	}
 }

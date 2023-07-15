@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneOffset;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -24,6 +25,7 @@ public class TransferenciaServico {
 	@Transactional(readOnly = true)
 	public Page<TransferenciaDTO> buscarTodasTransferencias(Pageable pageable) {
 		Page<Transferencia> resultado = transferenciaRepositorio.buscarTodasTransferencia(pageable);
+		atualizarTipoTransferencia(resultado.getContent());
 		return resultado.map(TransferenciaDTO::new);
 	}
 
@@ -36,13 +38,22 @@ public class TransferenciaServico {
 		Instant instantMax = maxData.isEmpty() ? hoje.atTime(LocalTime.MAX).atZone(ZoneOffset.UTC).toInstant()
 				: LocalDate.parse(maxData).atTime(LocalTime.MAX).atZone(ZoneOffset.UTC).toInstant();
 
-		Page<Transferencia> resultado = transferenciaRepositorio.buscarTransferenciaPorData(instantMin, instantMax, pageable);
+		Page<Transferencia> resultado = transferenciaRepositorio.buscarTransferenciaPorData(instantMin, instantMax,
+				pageable);
+		atualizarTipoTransferencia(resultado.getContent());
 		return resultado.map(TransferenciaDTO::new);
 	}
 
 	@Transactional(readOnly = true)
 	public Page<TransferenciaDTO> buscarTransferenciaPorConta(String nome, Pageable pageable) {
-		Page<Transferencia> transferencias = transferenciaRepositorio.buscarTransferenciaPorOperador(nome, pageable);
-		return transferencias.map(TransferenciaDTO::new);
+		Page<Transferencia> resultado = transferenciaRepositorio.buscarTransferenciaPorOperador(nome, pageable);
+		atualizarTipoTransferencia(resultado.getContent());
+		return resultado.map(TransferenciaDTO::new);
+	}
+
+	private void atualizarTipoTransferencia(List<Transferencia> transferencias) {
+		for (Transferencia transferencia : transferencias) {
+			transferencia.atualizarTipoTransferencia();
+		}
 	}
 }

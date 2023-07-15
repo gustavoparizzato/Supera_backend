@@ -12,8 +12,8 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "transferencia")
-public class Transferencia implements Serializable{
-	
+public class Transferencia implements Serializable {
+
 	private static final long serialVersionUID = 1L;
 
 	@Id
@@ -22,11 +22,11 @@ public class Transferencia implements Serializable{
 	private Double valor;
 	private String tipo;
 	private String nome_operador_transacao;
-	
+
 	@ManyToOne
 	@JoinColumn(name = "conta_id")
 	private Conta conta;
-	
+
 	public Transferencia() {
 	}
 
@@ -91,6 +91,14 @@ public class Transferencia implements Serializable{
 	@Override
 	public int hashCode() {
 		return Objects.hash(id);
+	}
+
+	public void atualizarTipoTransferencia() {
+		if (tipo.equalsIgnoreCase("TRANSFERENCIA") && valor < 0) {
+			tipo = "TRANSFERENCIA SAIDA";
+		} else if (tipo.equalsIgnoreCase("TRANSFERENCIA")) {
+			tipo = "TRANSFERENCIA ENTRADA";
+		}
 	}
 
 	@Override
