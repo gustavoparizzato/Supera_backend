@@ -94,11 +94,13 @@ public class Transferencia implements Serializable {
 	}
 
 	public void atualizarTipoTransferencia() {
-		if (tipo.equalsIgnoreCase("TRANSFERENCIA") && valor < 0) {
-			tipo = "TRANSFERENCIA SAIDA";
-		} else if (tipo.equalsIgnoreCase("TRANSFERENCIA")) {
-			tipo = "TRANSFERENCIA ENTRADA";
-		}
+	    if (tipo.equalsIgnoreCase("TRANSFERENCIA")) {
+	        if (valor < 0) {
+	            tipo = "TRANSFERENCIA SAIDA";
+	        } else {
+	            tipo = "TRANSFERENCIA ENTRADA";
+	        }
+	    }
 	}
 
 	@Override

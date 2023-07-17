@@ -50,6 +50,30 @@ public class TransferenciaServico {
 		atualizarTipoTransferencia(resultado.getContent());
 		return resultado.map(TransferenciaDTO::new);
 	}
+	
+	@Transactional(readOnly = true)
+	public Double calcularSaldoTotal() {
+	    List<Transferencia> transferencias = transferenciaRepositorio.findAll();
+	    return transferencias.stream()
+	            .mapToDouble(Transferencia::getValor)
+	            .sum();
+	}
+
+	@Transactional(readOnly = true)
+	public Double calcularSaldoTotalNoPeriodo(String minData, String maxData, Pageable pageable) {
+		
+		LocalDate hoje = LocalDate.now();
+		//data mínima será definida com 2000 dias a menos que 'hoje'
+		Instant instantMin = minData.isEmpty() ? hoje.minusDays(2000).atStartOfDay().toInstant(ZoneOffset.UTC)
+				: LocalDate.parse(minData).atStartOfDay().toInstant(ZoneOffset.UTC);
+		Instant instantMax = maxData.isEmpty() ? hoje.atTime(LocalTime.MAX).atZone(ZoneOffset.UTC).toInstant()
+				: LocalDate.parse(maxData).atTime(LocalTime.MAX).atZone(ZoneOffset.UTC).toInstant();
+		
+	    Page<Transferencia> transferencias = transferenciaRepositorio.buscarTransferenciaPorData(instantMin, instantMax, pageable);
+	    return transferencias.stream()
+	            .mapToDouble(Transferencia::getValor)
+	            .sum();
+	}
 
 	private void atualizarTipoTransferencia(List<Transferencia> transferencias) {
 		for (Transferencia transferencia : transferencias) {

@@ -1,5 +1,7 @@
 package br.com.banco.controladores;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -10,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.banco.dto.TransferenciaDTO;
+import br.com.banco.dto.TransferenciaSaldoDTO;
 import br.com.banco.servicos.TransferenciaServico;
 
 @RestController
@@ -20,7 +23,7 @@ public class TransferenciaControle {
 	private TransferenciaServico transferenciaServico;
 
 	@GetMapping
-	public ResponseEntity<Page<TransferenciaDTO>> buscarTransferencias(
+	public ResponseEntity<TransferenciaSaldoDTO> buscarTransferencias(
 			@RequestParam(value = "minData", defaultValue = "") String minData,
 			@RequestParam(value = "maxData", defaultValue = "") String maxData,
 			@RequestParam(value = "nomeConta", defaultValue = "") String nomeConta, Pageable pageable) {
@@ -34,7 +37,13 @@ public class TransferenciaControle {
 		} else {
 			resultado = transferenciaServico.buscarTodasTransferencias(pageable);
 		}
+		
+		List<TransferenciaDTO> transferencias = resultado.getContent();
+        Double saldoTotal = transferenciaServico.calcularSaldoTotal();
+        Double saldoTotalNoPeriodo = transferenciaServico.calcularSaldoTotalNoPeriodo(minData, maxData, pageable);
 
-		return ResponseEntity.ok().body(resultado);
+        TransferenciaSaldoDTO dto = new TransferenciaSaldoDTO(saldoTotal, saldoTotalNoPeriodo, transferencias);
+        
+		return ResponseEntity.ok().body(dto);
 	}
 }
