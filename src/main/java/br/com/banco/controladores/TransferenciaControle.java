@@ -1,7 +1,5 @@
 package br.com.banco.controladores;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -26,23 +24,26 @@ public class TransferenciaControle {
 	public ResponseEntity<TransferenciaSaldoDTO> buscarTransferencias(
 			@RequestParam(value = "minData", defaultValue = "") String minData,
 			@RequestParam(value = "maxData", defaultValue = "") String maxData,
-			@RequestParam(value = "nomeConta", defaultValue = "") String nomeConta, Pageable pageable) {
+			@RequestParam(value = "nomeOperador", defaultValue = "") String nomeOperador, 
+			@RequestParam(value = "numeroConta", defaultValue = "") Long numeroConta,
+			Pageable pageable) {
 
-		Page<TransferenciaDTO> resultado;
+		Page<TransferenciaDTO> resultado = transferenciaServico.buscarTodasTransferencias(pageable);
 
 		if (!minData.isEmpty() && !maxData.isEmpty()) {
 			resultado = transferenciaServico.buscarTransferenciaPorData(minData, maxData, pageable);
-		} else if (!nomeConta.isEmpty()) {
-			resultado = transferenciaServico.buscarTransferenciaPorConta(nomeConta, pageable);
-		} else {
-			resultado = transferenciaServico.buscarTodasTransferencias(pageable);
+		}
+		if (!nomeOperador.isEmpty()) {
+			resultado = transferenciaServico.buscarTransferenciaPorOperador(nomeOperador, pageable);
+		}
+		if (numeroConta != null) {
+			resultado = transferenciaServico.buscarTransferenciaPorConta(numeroConta, pageable);
 		}
 		
-		List<TransferenciaDTO> transferencias = resultado.getContent();
-        Double saldoTotal = transferenciaServico.calcularSaldoTotal();
-        Double saldoTotalNoPeriodo = transferenciaServico.calcularSaldoTotalNoPeriodo(minData, maxData, pageable);
+	    Double saldoTotal = transferenciaServico.calcularSaldoTotal(numeroConta, pageable);
+	    Double saldoTotalNoPeriodo = transferenciaServico.calcularSaldoTotalNoPeriodo(numeroConta, minData, maxData, pageable);
 
-        TransferenciaSaldoDTO dto = new TransferenciaSaldoDTO(saldoTotal, saldoTotalNoPeriodo, transferencias);
+	    TransferenciaSaldoDTO dto = new TransferenciaSaldoDTO(saldoTotal, saldoTotalNoPeriodo, resultado.getContent());
         
 		return ResponseEntity.ok().body(dto);
 	}

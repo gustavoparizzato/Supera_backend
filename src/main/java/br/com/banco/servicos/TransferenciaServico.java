@@ -37,7 +37,6 @@ public class TransferenciaServico {
 				: LocalDate.parse(minData).atStartOfDay().toInstant(ZoneOffset.UTC);
 		Instant instantMax = maxData.isEmpty() ? hoje.atTime(LocalTime.MAX).atZone(ZoneOffset.UTC).toInstant()
 				: LocalDate.parse(maxData).atTime(LocalTime.MAX).atZone(ZoneOffset.UTC).toInstant();
-
 		Page<Transferencia> resultado = transferenciaRepositorio.buscarTransferenciaPorData(instantMin, instantMax,
 				pageable);
 		atualizarTipoTransferencia(resultado.getContent());
@@ -45,34 +44,48 @@ public class TransferenciaServico {
 	}
 
 	@Transactional(readOnly = true)
-	public Page<TransferenciaDTO> buscarTransferenciaPorConta(String nome, Pageable pageable) {
+	public Page<TransferenciaDTO> buscarTransferenciaPorOperador(String nome, Pageable pageable) {
 		Page<Transferencia> resultado = transferenciaRepositorio.buscarTransferenciaPorOperador(nome, pageable);
 		atualizarTipoTransferencia(resultado.getContent());
 		return resultado.map(TransferenciaDTO::new);
 	}
-	
+
 	@Transactional(readOnly = true)
-	public Double calcularSaldoTotal() {
-	    List<Transferencia> transferencias = transferenciaRepositorio.findAll();
-	    return transferencias.stream()
-	            .mapToDouble(Transferencia::getValor)
-	            .sum();
+	public Page<TransferenciaDTO> buscarTransferenciaPorConta(Long numeroConta, Pageable pageable) {
+		Page<Transferencia> resultado = transferenciaRepositorio.buscarTransferenciaPorConta(numeroConta, pageable);
+		return resultado.map(TransferenciaDTO::new);
 	}
 
 	@Transactional(readOnly = true)
-	public Double calcularSaldoTotalNoPeriodo(String minData, String maxData, Pageable pageable) {
-		
+	public Double calcularSaldoTotal(Long numeroConta, Pageable pageable) {
+		if (numeroConta != null) {
+			Page<Transferencia> transferencias = transferenciaRepositorio.buscarTransferenciaPorConta(numeroConta,
+					pageable);
+			return transferencias.stream().mapToDouble(Transferencia::getValor).sum();
+		} else {
+			List<Transferencia> transferencias = transferenciaRepositorio.findAll();
+			return transferencias.stream().mapToDouble(Transferencia::getValor).sum();
+		}
+	}
+
+	@Transactional(readOnly = true)
+	public Double calcularSaldoTotalNoPeriodo(Long numeroConta, String minData, String maxData, Pageable pageable) {
+
 		LocalDate hoje = LocalDate.now();
-		//data mínima será definida com 2000 dias a menos que 'hoje'
 		Instant instantMin = minData.isEmpty() ? hoje.minusDays(2000).atStartOfDay().toInstant(ZoneOffset.UTC)
 				: LocalDate.parse(minData).atStartOfDay().toInstant(ZoneOffset.UTC);
 		Instant instantMax = maxData.isEmpty() ? hoje.atTime(LocalTime.MAX).atZone(ZoneOffset.UTC).toInstant()
 				: LocalDate.parse(maxData).atTime(LocalTime.MAX).atZone(ZoneOffset.UTC).toInstant();
-		
-	    Page<Transferencia> transferencias = transferenciaRepositorio.buscarTransferenciaPorData(instantMin, instantMax, pageable);
-	    return transferencias.stream()
-	            .mapToDouble(Transferencia::getValor)
-	            .sum();
+
+		if (numeroConta != null) {
+			Page<Transferencia> transferencias = transferenciaRepositorio.buscarTransferenciaPorDateEConta(numeroConta,
+					instantMin, instantMax, pageable);
+			return transferencias.stream().mapToDouble(Transferencia::getValor).sum();
+		} else {
+			Page<Transferencia> transferencias = transferenciaRepositorio.buscarTransferenciaPorData(instantMin,
+					instantMax, pageable);
+			return transferencias.stream().mapToDouble(Transferencia::getValor).sum();
+		}
 	}
 
 	private void atualizarTipoTransferencia(List<Transferencia> transferencias) {

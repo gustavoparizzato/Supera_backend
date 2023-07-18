@@ -3,14 +3,14 @@ package br.com.banco.dto;
 import java.io.Serializable;
 import java.util.List;
 
-public class TransferenciaSaldoDTO implements Serializable{
+public class TransferenciaSaldoDTO implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-	
+
 	private Double saldoTotal;
 	private Double saldoNoPeriodo;
 	private List<TransferenciaDTO> transferencias;
-	
+
 	public TransferenciaSaldoDTO() {
 	}
 
@@ -42,5 +42,5 @@ public class TransferenciaSaldoDTO implements Serializable{
 
 	public void setTransferencias(List<TransferenciaDTO> transferencias) {
 		this.transferencias = transferencias;
-	}	
+	}
 }
